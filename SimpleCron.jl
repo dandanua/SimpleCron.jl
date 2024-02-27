@@ -2,6 +2,7 @@ module SimpleCron
 export Cron, start, stop, subscribe, unsubscribe, sleep_until
 
 using Dates
+using Base.Threads: @spawn
 
 mutable struct Cron
     const period::Period # no months or other non-constant
@@ -68,7 +69,7 @@ function start(cron::Cron)
         adjust_phase!(cron) # a change of system UTC forwards won't cause "panic"
         cron.phase += cron.period
         cron.awake = Threads.Condition(cron.lock)
-        @async begin
+        @spawn begin
             sleep_until(cron.phase)
             @lock cron.lock notify(cron.awake)
         end
@@ -80,10 +81,10 @@ function start(cron::Cron)
 
             for job in cron.jobs
                 if cron.dynamic==false
-                    @async job()
+                    @spawn job()
                 else
 #                     eval(:(@async $job()))
-                    @async invokelatest(job)
+                    @spawn invokelatest(job)
                 end
             end
         end
