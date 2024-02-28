@@ -1,4 +1,4 @@
-module SimpleCron
+module SimpleCrons
 export Cron, start, stop, subscribe, unsubscribe, sleep_until
 
 using Dates
@@ -6,7 +6,7 @@ using Base.Threads: @spawn
 
 mutable struct Cron
     const period::Period # no months or other non-constant
-    phase::DateTime # in UTC. Local time shift fixed at the moment of creation. Doesn't change at summer/winter
+    phase::DateTime # in UTC. Local time shift fixed at the moment of creation. Doesn't change in summer/winter
     jobs::Set{Function}
     state::Symbol
     awake::Threads.Condition
@@ -32,7 +32,7 @@ function Cron(period::Period, phase::DateTime; dynamic::Bool=false)
 end
 
 # 2024-01-01 is Monday
-Cron(period::Period, phase::Period = Day(0); dynamic=false) = Cron(period, DateTime("2024-01-01")+phase, dynamic=dynamic)
+Cron(period::Period, phase::CompoundPeriod = Day(0); dynamic=false) = Cron(period, DateTime("2024-01-01")+phase, dynamic=dynamic)
 
 function sleep_until(future::DateTime)
     while true
@@ -75,7 +75,7 @@ function start(cron::Cron)
         end
         @lock cron.lock begin
             wait(cron.awake)
-            @show ("awake", cron.phase)
+            # @show ("awake", cron.phase)
 
             if cron.state==:stop break end
 
@@ -83,7 +83,7 @@ function start(cron::Cron)
                 if cron.dynamic==false
                     @spawn job()
                 else
-#                     eval(:(@async $job()))
+                    # eval(:(@async $job()))
                     @spawn invokelatest(job)
                 end
             end

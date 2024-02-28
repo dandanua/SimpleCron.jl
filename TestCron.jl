@@ -1,6 +1,6 @@
 module TestCron
 # export main
-using SimpleCron, Dates, Base.Threads
+using SimpleCrons, Dates, Base.Threads
 
 function main()
     # c = Cron(Second(1), dynamic = true)
