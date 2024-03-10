@@ -32,7 +32,8 @@ function Cron(period::Period, phase::DateTime; dynamic::Bool=false)
 end
 
 # 2024-01-01 is Monday
-Cron(period::Period, phase::CompoundPeriod = Day(0); dynamic=false) = Cron(period, DateTime("2024-01-01")+phase, dynamic=dynamic)
+Cron(period::Period, phase::Period = Day(0); dynamic=false) = Cron(period, DateTime("2024-01-01")+phase, dynamic=dynamic)
+Cron(period::Period, phase::Dates.CompoundPeriod = Day(0); dynamic=false) = Cron(period, DateTime("2024-01-01")+phase, dynamic=dynamic)
 
 function sleep_until(future::DateTime)
     while true

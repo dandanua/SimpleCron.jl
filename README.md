@@ -16,7 +16,7 @@ Pkg.add("SimpleCrons")
 To define a cron you simply supply a period and a phase
 ```julia
 using Dates
-using SimpleCron
+using SimpleCrons
 
 cron = Cron(Week(1), DateTime("2024-01-02T08:30"))
 ```
